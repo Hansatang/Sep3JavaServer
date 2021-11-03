@@ -4,14 +4,9 @@ package com.example.javaserver;/*
 
 
 import com.google.gson.Gson;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,15 +23,32 @@ public class AltTier3Controller {
     }
 
 
-    @GetMapping("/BankF/{phoneNo}")
-    public synchronized String getAccount(@PathVariable(value = "phoneNo") int accountNumber) {
+    @GetMapping("/Group/{id}")
+    public synchronized String getAccount(@PathVariable(value = "id") int id) throws SQLException {
         System.out.println("It's working");
-
+        String text = "";
+        ResultSet resultSet = statement.executeQuery
+                ("SELECT * FROM sep3.notes WHERE id = " + id);
+        while (resultSet.next()) {
+            text =  resultSet.getString(2);
+        }
         List<String> AdultsList = new ArrayList<>();
-        AdultsList.add("It's working");
-        String result = gson.toJson(AdultsList);
-        return result;
+        AdultsList.add(text);
+        return gson.toJson(AdultsList);
     }
 
+    @PutMapping("/Group")
+    public synchronized String createAccount(@RequestBody String json) {
 
+        Account f = Account.fromJson(json);
+        try {
+            statement.execute("INSERT INTO sep3.notes (id,string) VALUES ("
+                    + f.getNumber() + "," + f.getBalance() + ")");
+            return getAccount(f.getNumber());
+        } catch (SQLException e) {
+            System.out.println("Connection failure.");
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
