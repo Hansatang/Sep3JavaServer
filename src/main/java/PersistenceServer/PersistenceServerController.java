@@ -26,7 +26,7 @@ public class PersistenceServerController {
 
 
     @GetMapping("/Group/{id}")
-    public synchronized String getAccount(@PathVariable(value = "id") int id) throws SQLException {
+    public synchronized String getGroup(@PathVariable(value = "id") int id) throws SQLException {
         System.out.println("It's working Get");
         String text = "";
         ResultSet resultSet = connection.createStatement().executeQuery
@@ -41,13 +41,13 @@ public class PersistenceServerController {
     }
 
     @PutMapping("/Group")
-    public synchronized String createAccount(@RequestBody String json) {
+    public synchronized String createGroup(@RequestBody String json) {
         System.out.println("It's working Post");
         System.out.println(json);
         try {
             connection.createStatement().execute("INSERT INTO sep3.notes (id,string) VALUES ("
                     + '5' + ",'" + json + "')");
-            return getAccount(5);
+            return getGroup(5);
         } catch (SQLException e) {
             System.out.println("Connection failure.");
             e.printStackTrace();
