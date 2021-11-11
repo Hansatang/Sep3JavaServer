@@ -1,6 +1,4 @@
-package PersistenceServer;/*
- * 03.10.2021 Original version
- */
+package PersistenceServer;
 
 
 import com.google.gson.Gson;
@@ -19,7 +17,9 @@ public class PersistenceServerController {
 
     private static final Gson gson = new Gson();
     private final Connection connection =
-            DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "qwerty");
+            DriverManager.getConnection("jdbc:postgresql://tai.db.elephantsql.com:5432/seitjdhj",
+                    "seitjdhj", "9LEmAjua_Uo0YR5sGqAFHn0Kgm9DDKu1");
+
 
     public PersistenceServerController() throws SQLException {
     }
@@ -28,15 +28,15 @@ public class PersistenceServerController {
     @GetMapping("/Group/{id}")
     public synchronized String getGroup(@PathVariable(value = "id") int id) throws SQLException {
         System.out.println("It's working Get");
-        String text = "";
+        List<Group> AdultsList = new ArrayList<>();
         ResultSet resultSet = connection.createStatement().executeQuery
-                ("SELECT * FROM sep3.notes WHERE id = " + id);
+                ("SELECT * FROM notelender.groups WHERE id = " + id);
         while (resultSet.next()) {
-            text = resultSet.getString(2);
-            System.out.println(text);
+            Group groupToAdd = new Group(resultSet.getInt(1),resultSet.getString(2));
+            AdultsList.add(groupToAdd);
         }
-        List<String> AdultsList = new ArrayList<>();
-        AdultsList.add(text);
+
+
         return gson.toJson(AdultsList);
     }
 
@@ -53,5 +53,35 @@ public class PersistenceServerController {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @GetMapping("/NoteList/{id}")
+    public synchronized String getNoteList(@PathVariable(value = "id") int id) throws SQLException {
+        System.out.println("It's working GetNoteList");
+        List<Note> NoteList = new ArrayList<>();
+        ResultSet resultSet = connection.createStatement().executeQuery
+                ("SELECT * FROM notelender.note WHERE group_id = " + id);
+        while (resultSet.next()) {
+            Note noteToAdd = new Note(resultSet.getInt(1), resultSet.getInt(2),
+                    resultSet.getInt(3), resultSet.getString(4),
+                    resultSet.getString(5), resultSet.getString(6));
+            NoteList.add(noteToAdd);
+        }
+        return gson.toJson(NoteList);
+    }
+
+    @GetMapping("/UserList/{id}")
+    public synchronized String getUserList(@PathVariable(value = "id") int id) throws SQLException {
+        System.out.println("It's working Get");
+        String text = "";
+        ResultSet resultSet = connection.createStatement().executeQuery
+                ("SELECT * FROM sep3.notes WHERE id = " + id);
+        while (resultSet.next()) {
+            text = resultSet.getString(2);
+            System.out.println(text);
+        }
+        List<String> AdultsList = new ArrayList<>();
+        AdultsList.add(text);
+        return gson.toJson(AdultsList);
     }
 }
